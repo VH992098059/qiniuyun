@@ -15,7 +15,6 @@ function createWindow() {
   const devUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173'
   if (!app.isPackaged) {
     win.loadURL(devUrl)
-    win.webContents.openDevTools()
   } else {
     win.loadFile(path.join(__dirname, '../dist/index.html'))
   }
