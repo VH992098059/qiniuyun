@@ -31,11 +31,25 @@ const examples = [
 
 <style scoped>
 .panel {
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid #3a3a3a;
   border-radius: 12px;
   padding: 12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.04);
+  height: 100%; /* 让左侧面板在栅格里拉伸填满 */
+  display: flex;
+  flex-direction: column;
+}
+
+.panel .header {
+  font-size: 14px;
+  color: #a0afc2;
+  margin-bottom: 8px;
+}
+
+.panel .content {
+  flex: 1;
+  min-height: 0; /* 允许内部滚动 */
+  overflow: auto;
 }
 .panel h2, .panel h3 {
   margin: 6px 0 10px 0;

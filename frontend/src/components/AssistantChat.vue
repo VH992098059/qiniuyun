@@ -126,6 +126,10 @@ const srLabel = computed(() => isRecording.value ? '录音中…' : (srAvailable
   border-radius: 12px;
   padding: 12px;
   background: rgba(255,255,255,0.04);
+  display: flex; /* 让内部按列布局以充满高度 */
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* 允许内部滚动 */
 }
 .status {
   display: flex;
@@ -152,7 +156,9 @@ const srLabel = computed(() => isRecording.value ? '录音中…' : (srAvailable
   100% { box-shadow: 0 0 0 0 rgba(229,57,53, 0); }
 }
 .chat-box {
-  height: 420px;
+  /* 改为弹性填充高度 */
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -162,7 +168,7 @@ const srLabel = computed(() => isRecording.value ? '录音中…' : (srAvailable
   padding: 12px;
 }
 .bubble {
-  max-width: 70%;
+  max-width: 80%;
   padding: 10px 12px;
   border-radius: 14px;
   color: #fff;
@@ -176,7 +182,7 @@ const srLabel = computed(() => isRecording.value ? '录音中…' : (srAvailable
 .time { font-size: 12px; opacity: 0.9; }
 .toolbar {
   display: grid;
-  grid-template-columns: 180px 1fr 120px;
+  grid-template-columns: 200px 1fr 140px;
   gap: 10px;
   margin-top: 12px;
 }
@@ -190,7 +196,12 @@ const srLabel = computed(() => isRecording.value ? '录音中…' : (srAvailable
   border-radius: 10px;
 }
 .send {
-  background: #1e88e5;
-  border-radius: 10px;
-}
+    background: #1e88e5;
+    border-radius: 10px;
+  }
+  @media (max-width: 600px) {
+    .toolbar {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>

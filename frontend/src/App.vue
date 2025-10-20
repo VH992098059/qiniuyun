@@ -19,33 +19,31 @@ const applyExample = (t: string) => { chat.value?.useExample(t) }
 
 <style scoped>
 .app-root {
+  /* 页面容器占满窗口，并提供内边距 */
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-.app-header {
-  text-align: center;
-}
-.app-header h1 {
-  margin: 0 0 6px 0;
-  letter-spacing: 0.5px;
-}
-.sub {
-  font-size: 14px;
-  color: #8aa0b6;
+  gap: 20px;
+  height: 100vh;
+  box-sizing: border-box;
+  max-width: none;
+  margin: 0;
+  padding: clamp(16px, 3vw, 32px);
+  text-align: left;
+  /* 左栏固定宽度，右栏自适应 */
+  --panel-width: clamp(280px, 22vw, 360px);
 }
 .app-main {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 16px;
-  align-items: start;
+  grid-template-columns: var(--panel-width) minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch; /* 让右侧内容拉伸填满 */
+  height: 100%;
+  min-height: 0; /* 允许子项内部滚动 */
 }
 @media (max-width: 960px) {
   .app-main {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr; /* 左栏在上，右栏铺满下方 */
   }
 }
 </style>
