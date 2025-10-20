@@ -1,10 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import AssistantChat from '../src/components/AssistantChat.vue'
 import AbilitiesPanel from '../src/components/AbilitiesPanel.vue'
 
 const chat = ref<InstanceType<typeof AssistantChat> | null>(null)
 const applyExample = (t: string) => { chat.value?.useExample(t) }
+
+// 根据浏览器/客户端窗口高度设置 CSS 变量，用于更精准的视口高度
+function setAppHeight() {
+  const h = window.innerHeight || document.documentElement.clientHeight
+  document.documentElement.style.setProperty('--app-height', `${h}px`)
+}
+
+onMounted(() => {
+  setAppHeight()
+  window.addEventListener('resize', setAppHeight)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', setAppHeight)
+})
 </script>
 
 <template>
@@ -23,11 +38,11 @@ const applyExample = (t: string) => { chat.value?.useExample(t) }
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 100vh;
+  height: calc(var(--app-height, 100vh) - 26px); /* 基于客户端高度，默认回退到 100vh */
   box-sizing: border-box;
   max-width: none;
   margin: 0;
-  padding: clamp(16px, 3vw, 32px);
+  /* padding: clamp(16px, 3vw, 32px); */
   text-align: left;
   /* 左栏固定宽度，右栏自适应 */
   --panel-width: clamp(280px, 22vw, 360px);

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 
 function createWindow() {
@@ -7,12 +7,17 @@ function createWindow() {
     height: 840,
     minWidth: 960,
     minHeight: 600,
+    autoHideMenuBar: true, // 隐藏菜单栏（按 Alt 可显示，下面再彻底移除）
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   })
+
+  // 彻底移除应用菜单并隐藏窗口菜单栏
+  Menu.setApplicationMenu(null)
+  win.setMenuBarVisibility(false)
 
   const devUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173'
   if (!app.isPackaged) {
