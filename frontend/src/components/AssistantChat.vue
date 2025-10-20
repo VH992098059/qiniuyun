@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, computed } from 'vue'
+import { ElButton, ElMessage} from 'element-plus';
+import { ref, nextTick, onMounted, onUnmounted, computed } from 'vue'
+import { transcribeBlob, pickText } from '../services/asr'
+import { voiceService } from '../services/voice'
 
 interface Msg { role: 'user' | 'assistant'; text: string; time: number }
 const messages = ref<Msg[]>([{
@@ -10,8 +13,11 @@ const messages = ref<Msg[]>([{
 
 const inputText = ref('')
 const isRecording = ref(false)
-const srAvailable = typeof (window as any).webkitSpeechRecognition !== 'undefined' || typeof (window as any).SpeechRecognition !== 'undefined'
-let recognition: any = null
+const isTranscribing = ref(false)
+const asrAvailable = !!(navigator.mediaDevices && 'MediaRecorder' in window)
+let mediaRecorder: MediaRecorder | null = null
+let recordedChunks: BlobPart[] = []
+let mediaStream: MediaStream | null = null
 const chatBox = ref<HTMLDivElement | null>(null)
 
 function scrollToBottom() {
@@ -21,12 +27,19 @@ function scrollToBottom() {
   })
 }
 
-function speak(text: string) {
+async function speak(text: string) {
+  const lastMsg = messages.value[messages.value.length - 1]
+  const msgId = String(lastMsg?.time ?? Date.now())
   try {
-    const u = new SpeechSynthesisUtterance(text)
-    u.lang = 'zh-CN'
-    speechSynthesis.speak(u)
-  } catch {}
+    await voiceService.readElMessage(msgId, text)
+  } catch {
+    // 回退：浏览器语音合成
+    try {
+      const u = new SpeechSynthesisUtterance(text)
+      u.lang = 'zh-CN'
+      speechSynthesis.speak(u)
+    } catch {}
+  }
 }
 
 async function sendText(text: string) {
@@ -41,11 +54,11 @@ async function sendText(text: string) {
     const res = await api.executeCommand(trimmed)
     const reply = res?.reply ?? '（主进程未响应，前端占位文本）'
     messages.value.push({ role: 'assistant', text: reply, time: Date.now() })
-    speak(reply)
+    await speak(reply)
   } else {
     const reply = '（Electron 未连接，前端占位响应：已接收你的指令）'
     messages.value.push({ role: 'assistant', text: reply, time: Date.now() })
-    speak(reply)
+    await speak(reply)
   }
   scrollToBottom()
 }
@@ -54,46 +67,84 @@ function useExample(text: string) {
   inputText.value = text
 }
 
-function startRecording() {
-  if (!srAvailable) {
-    isRecording.value = true
+async function startRecording() {
+  if (!asrAvailable) {
+    ElMessage.warning('当前环境不支持录音')
     return
   }
-  const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
-  recognition = new SR()
-  recognition.continuous = false
-  recognition.interimResults = true
-  recognition.lang = 'zh-CN'
-  const finalChunks: string[] = []
-  recognition.onresult = (event: any) => {
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const res = event.results[i]
-      const transcript = res[0].transcript
-      if (res.isFinal) finalChunks.push(transcript)
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    recordedChunks = []
+    mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm' })
+    mediaRecorder.ondataavailable = (e: BlobEvent) => {
+      if (e.data && e.data.size > 0) recordedChunks.push(e.data)
     }
+    mediaRecorder.onstart = () => { isRecording.value = true }
+    mediaRecorder.onstop = async () => {
+      isRecording.value = false
+      const blob = new Blob(recordedChunks, { type: 'audio/webm' })
+      recordedChunks = []
+      // 停止所有轨道
+      mediaStream?.getTracks().forEach(t => t.stop())
+      mediaStream = null
+      try {
+        isTranscribing.value = true
+        const resp = await transcribeBlob(blob, 'auto')
+        const text = pickText(resp).trim()
+        if (text) {
+          await sendText(text)
+        } else {
+          ElMessage.info('未识别到有效语音')
+        }
+      } catch (err) {
+        console.error('ASR 识别失败', err)
+        ElMessage.error('语音识别失败')
+      } finally {
+        isTranscribing.value = false
+      }
+    }
+    mediaRecorder.start()
+  } catch (err) {
+    console.error('获取麦克风失败', err)
+    ElMessage.error('无法访问麦克风')
   }
-  recognition.onstart = () => { isRecording.value = true }
-  recognition.onerror = () => { isRecording.value = false }
-  recognition.onend = async () => {
-    isRecording.value = false
-    const text = finalChunks.join(' ').trim()
-    if (text) await sendText(text)
-  }
-  recognition.start()
 }
 
 function stopRecording() {
-  if (recognition) try { recognition.stop() } catch {}
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    try { mediaRecorder.stop() } catch {}
+  }
   isRecording.value = false
-  // 若无 WebSpeech，模拟一次简单输入（可选）
 }
 
-onMounted(() => scrollToBottom())
+onMounted(() => {
+  scrollToBottom()
+  voiceService.setCallbacks({
+    onStateChange: () => {},
+    onLoadStart: () => {},
+    onCanPlay: () => {},
+    onEnded: () => {},
+    onError: () => {},
+    onAbort: () => {},
+  })
+})
+
+onUnmounted(() => {
+  voiceService.destroy()
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    try { mediaRecorder.stop() } catch {}
+  }
+  mediaStream?.getTracks().forEach(t => t.stop())
+})
 
 // 暴露给父组件使用示例填充
 defineExpose({ useExample })
 
-const srLabel = computed(() => isRecording.value ? '录音中…' : (srAvailable ? '语音识别可用' : '语音识别不可用'))
+const srLabel = computed(() => {
+  if (isRecording.value) return '录音中…'
+  if (isTranscribing.value) return '识别中…'
+  return asrAvailable ? '语音识别 API 已接入' : '语音识别不可用'
+})
 </script>
 
 <template>
@@ -111,11 +162,11 @@ const srLabel = computed(() => isRecording.value ? '录音中…' : (srAvailable
       </div>
     </div>
     <div class="toolbar">
-      <button class="mic" @click="isRecording ? stopRecording() : startRecording()">
+      <ElButton class="mic" @click="isRecording ? stopRecording() : startRecording()">
         {{ isRecording ? '⏹️ 停止' : '🎤 开始录音' }}
-      </button>
+      </ElButton>
       <input v-model="inputText" placeholder="在此输入或按麦克风说话" @keyup.enter="sendText(inputText)" />
-      <button class="send" @click="sendText(inputText)">📨 发送</button>
+      <ElButton class="send" @click="sendText(inputText)">📨 发送</ElButton>
     </div>
   </section>
 </template>

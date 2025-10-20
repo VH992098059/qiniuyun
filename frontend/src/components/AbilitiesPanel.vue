@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElButton } from 'element-plus';
 import { defineEmits } from 'vue'
 
 const emit = defineEmits<{
@@ -24,7 +25,7 @@ const examples = [
     </ul>
     <h3>示例</h3>
     <div class="examples">
-      <button v-for="ex in examples" :key="ex" @click="emit('use-example', ex)">{{ ex }}</button>
+      <ElButton v-for="ex in examples" :key="ex" @click="emit('use-example', ex)">{{ ex }}</ElButton>
     </div>
   </aside>
 </template>

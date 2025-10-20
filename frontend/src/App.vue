@@ -45,7 +45,7 @@ onUnmounted(() => {
   /* padding: clamp(16px, 3vw, 32px); */
   text-align: left;
   /* 左栏固定宽度，右栏自适应 */
-  --panel-width: clamp(280px, 22vw, 360px);
+  --panel-width: clamp(278px, 27vw, 360px);
 }
 .app-main {
   display: grid;
