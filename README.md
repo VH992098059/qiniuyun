@@ -136,17 +136,31 @@ pacman -S --needed base-devel mingw-w64-x86_64-toolchain
 
 ## 目录结构（简要）
 ```
-backend/
-  golang/           Go 后端（ASR/TTS/系统能力）
-    internal/       业务与命令实现
-    main.go         入口（GoFrame）
-  java/             Spring Boot + Spring AI（LLM 服务）
-    pom.xml         依赖与构建
-    src/            控制器/服务实现
-frontend/
-  src/              前端源码（Vue3 + Element Plus）
-  electron/         Electron 主进程与预加载脚本
-  package.json      前端脚本与依赖（pnpm）
+qiniuyun
+├── backend
+│   ├── golang           Go 后端（ASR/TTS/系统能力）
+│   ├── internal         业务与命令实现
+│   ├── main.go          入口（GoFrame）
+│   └── java             Spring Boot + Spring AI（LLM 服务）
+│       ├── pom.xml        依赖与构建
+│       └── src            控制器/服务实现
+│           └── main\java\com\csjzsn\voicemindjavacore
+│               ├── tools  工具类
+│               ├── advisor  顾问（类似拦截器）
+│               ├── app  项目核心实现
+│               ├── common  通用实体类
+│               ├── config  配置
+│               ├── constant  常量
+│               ├── controller  接口层
+│               ├── exceptions  异常处理器
+│               ├── model  实体模型
+│               ├── rag  rag实现
+│               └── VoiceMindJavaCoreApplication.java  启动类
+└── frontend
+    ├── src              前端源码（Vue3 + Element Plus）
+    ├── electron         Electron 主进程与预加载脚本
+    └── package.json     前端脚本与依赖（pnpm）+ react-app
+
 ```
 
 ## 许可证
