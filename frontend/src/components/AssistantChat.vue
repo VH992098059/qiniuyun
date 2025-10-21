@@ -203,7 +203,6 @@ onUnmounted(() => {
 
 <style scoped>
 .chat-card {
-  height: calc(100vh - 2px);
   display: flex;
   flex-direction: column;
 }
@@ -218,7 +217,7 @@ onUnmounted(() => {
 }
 /* 提高选择器优先级，覆盖可能的固定高度 */
 .el-scrollbar.chat-scroll {
-  height: calc(100vh - 210px) !important;
+  height: calc(100vh - 206px) !important;
   overflow-y:auto !important;
   padding: 30px !important; 
 }
