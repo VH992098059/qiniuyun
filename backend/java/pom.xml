@@ -152,6 +152,8 @@
                             <version>1.18.40</version>
                         </path>
                     </annotationProcessorPaths>
+                    <source>7</source>
+                    <target>7</target>
                 </configuration>
             </plugin>
             <plugin>

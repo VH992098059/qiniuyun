@@ -18,5 +18,5 @@ func (c *ControllerV1) Voice(ctx context.Context, req *v1.VoiceReq) (res *v1.Voi
 	r := g.RequestFromCtx(ctx)
 	r.Response.Header().Set("Content-Type", "audio/mpeg")
 	r.Response.Write(speech)
-	return &v1.VoiceRes{}, nil
+	return
 }
