@@ -77,16 +77,18 @@ func FindExecutablePathInRegistry(appDisplayName, exeName string) (string, error
 }
 
 // LaunchApplication 启动应用程序
-func LaunchApplication(appName string) error {
+func LaunchApplication(app map[string][]string, appName string) error {
 	log.Printf("INFO: Attempting to launch application: %s", appName)
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {
 	case "windows":
-		appMap := map[string][]string{
+		/*appMap := map[string][]string{
 			"QQMusic": {"QQ音乐", "QQMusic.exe"},
 		}
-		if appInfo, ok := appMap[appName]; ok {
+		log.Println(appMap)*/
+		if appInfo, ok := app[appName]; ok {
+			log.Println("打开内容", appInfo)
 			var fullPath string
 			var err error
 
