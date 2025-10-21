@@ -1,15 +1,25 @@
+<template>
+  <el-container class="app-container">
+    <el-aside class="app-aside">
+      <AbilitiesPanel @use-example="applyExample" />
+    </el-aside>
+    <el-main class="app-main">
+      <AssistantChat ref="chat" />
+    </el-main>
+  </el-container>
+</template>
+
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import AssistantChat from '../src/components/AssistantChat.vue'
-import AbilitiesPanel from '../src/components/AbilitiesPanel.vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import AssistantChat from './components/AssistantChat.vue'
+import AbilitiesPanel from './components/AbilitiesPanel.vue'
 
 const chat = ref<InstanceType<typeof AssistantChat> | null>(null)
-const applyExample = (t: string) => { chat.value?.useExample(t) }
 
-// 根据浏览器/客户端窗口高度设置 CSS 变量，用于更精准的视口高度
 function setAppHeight() {
-  const h = window.innerHeight || document.documentElement.clientHeight
-  document.documentElement.style.setProperty('--app-height', `${h}px`)
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--app-vh', `${vh}px`)
+  document.documentElement.style.setProperty('--app-height', `${vh * 100}px`)
 }
 
 onMounted(() => {
@@ -20,45 +30,38 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', setAppHeight)
 })
+
+function applyExample(text: string) {
+  chat.value?.setInputText?.(text)
+}
 </script>
 
-<template>
-  <div class="app-root">
-    
-    <main class="app-main">
-      <AbilitiesPanel @use-example="applyExample" />
-      <AssistantChat ref="chat" />
-    </main>
-  </div>
-</template>
-
 <style scoped>
-.app-root {
-  /* 页面容器占满窗口，并提供内边距 */
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  height: calc(var(--app-height, 100vh) - 26px); /* 基于客户端高度，默认回退到 100vh */
-  box-sizing: border-box;
-  max-width: none;
-  margin: 0;
-  /* padding: clamp(16px, 3vw, 32px); */
-  text-align: left;
-  /* 左栏固定宽度，右栏自适应 */
+:root {
   --panel-width: clamp(278px, 27vw, 360px);
 }
-.app-main {
-  display: grid;
-  grid-template-columns: var(--panel-width) minmax(0, 1fr);
-  gap: 20px;
-  align-items: stretch; /* 让右侧内容拉伸填满 */
+
+.app-container {
+  height: calc(var(--app-height, 100vh));
+  background: var(--bg-app, #1e1e1e);
+}
+
+.app-aside {
+  /* padding: 12px; */
   height: 100%;
-  min-height: 0; /* 允许子项内部滚动 */
+  /* border-right: 1px solid var(--el-border-color); */
+  background: var(--el-color-black);
 }
-@media (max-width: 960px) {
-  .app-main {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr; /* 左栏在上，右栏铺满下方 */
-  }
+
+.app-main {
+  height: 100%;
+  /* padding: 12px; */
 }
+.el-aside{
+  overflow: hidden;
+}
+.el-main{
+  --el-main-padding: 0;
+}
+
 </style>
