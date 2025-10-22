@@ -1,10 +1,16 @@
-package com.csjzsn.voicemindjavacore.tools;
+package com.csjzsn.voicemindjavacore.tools.control;
 
 import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.csjzsn.voicemindjavacore.tools.file.FileOperationTool;
+import com.csjzsn.voicemindjavacore.tools.file.PDFGenerationTool;
+import com.csjzsn.voicemindjavacore.tools.file.ResourceDownloadTool;
+import com.csjzsn.voicemindjavacore.tools.web.WebSearchTool;
+import com.csjzsn.voicemindjavacore.tools.web.WebScrapingTool;
+import com.csjzsn.voicemindjavacore.tools.system.TerminalOperationTool;
 
 /**
  * 集中的工具注册类

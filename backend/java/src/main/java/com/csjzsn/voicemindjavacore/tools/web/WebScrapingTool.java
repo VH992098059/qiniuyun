@@ -1,4 +1,4 @@
-package com.csjzsn.voicemindjavacore.tools;
+package com.csjzsn.voicemindjavacore.tools.web;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
