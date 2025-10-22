@@ -1,6 +1,8 @@
 spring:
   application:
     name: VoiceMind-Java-core
+  profiles:
+    active: local
 server:
   port: 8081
   servlet:
@@ -10,8 +12,6 @@ server:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-    tags-sorter: alpha
-    operations-sorter: alpha
   api-docs:
     path: /v3/api-docs
   group-configs:
