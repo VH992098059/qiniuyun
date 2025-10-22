@@ -116,8 +116,6 @@ public class OrderApp {
         return OrderReport;
     }
 
-    // AI 恋爱知识库问答功能
-
     @Resource
     private VectorStore OrderAppVectorStore;
 
@@ -125,7 +123,7 @@ public class OrderApp {
     private QueryRewriter queryRewriter;
 
     /**
-     * 和 RAG 知识库进行对话
+     *  RAG 知识库进行对话
      *
      * @param message     消息
      * @param chatId    会话ID
@@ -164,6 +162,9 @@ public class OrderApp {
     @Resource
     private ToolCallback[] allTools;
 
+    @Resource
+    private ToolCallbackProvider toolCallbackProvider;
+
     /**
      * AI 报告功能（支持调用工具）
      *
@@ -186,10 +187,6 @@ public class OrderApp {
         return content;
     }
 
-    // AI 调用 MCP 服务
-
-    @Resource
-    private ToolCallbackProvider toolCallbackProvider;
 
     /**
      * AI 报告功能（调用 MCP 服务）

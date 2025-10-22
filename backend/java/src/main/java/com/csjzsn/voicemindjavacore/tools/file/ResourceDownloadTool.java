@@ -1,4 +1,4 @@
-package com.csjzsn.voicemindjavacore.tools;
+package com.csjzsn.voicemindjavacore.tools.file;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.http.HttpUtil;

@@ -27,7 +27,7 @@ public class OrderAppDocumentLoader {
 
     /**
      * 加载多篇 Markdown 文档
-     * @return
+     * @return List
      */
     public List<Document> loadMarkdowns() {
         List<Document> allDocuments = new ArrayList<>();

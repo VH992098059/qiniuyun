@@ -1,4 +1,4 @@
-package com.csjzsn.voicemindjavacore.tools;
+package com.csjzsn.voicemindjavacore.tools.system;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;

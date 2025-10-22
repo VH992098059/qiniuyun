@@ -1,4 +1,4 @@
-package com.csjzsn.voicemindjavacore.tools;
+package com.csjzsn.voicemindjavacore.tools.web;
 
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;

@@ -1,8 +1,8 @@
 package com.csjzsn.voicemindjavacore.controller;
 
+import com.csjzsn.voicemindjavacore.app.OrderApp;
 import com.csjzsn.voicemindjavacore.common.BaseResponse;
 import com.csjzsn.voicemindjavacore.common.OrderReport;
-import com.csjzsn.voicemindjavacore.app.OrderApp;
 import com.csjzsn.voicemindjavacore.model.dto.ProcessRequest;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -10,11 +10,10 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/ai")
+@RequestMapping("/ai/chat")
 public class AiController {
 
     @Resource
