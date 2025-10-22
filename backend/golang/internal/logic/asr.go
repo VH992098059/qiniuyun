@@ -181,11 +181,9 @@ func AsrPhone(ctx context.Context, audioBase64 string) (audio []byte, err error)
 	}
 	log.Printf("ASR识别结果: %s", recognized)
 
-	//TODO 调用对话模型并进行 TTS
-
+	//根据语音识别出的文本自动启动应用
+	RobotAutoApplication(ctx, recognized)
 	//TODO Java服务器模型链接
-
-	//TODO 使用流式输出
 
 	//TODO 接入TTS
 	speech, err := TextToSpeech(ctx, recognized)
