@@ -5,5 +5,9 @@ spring:
       chat:
         options:
           model: qwen3-max
+embedding:
+  options:
+    model: qwen3-vl-flash
+
 search-api:
   api-key: A2j9FJa9powviQijXypZjAEw
