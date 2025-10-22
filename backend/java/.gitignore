@@ -2,7 +2,7 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
 .flattened-pom.xml
-application-local.yml
+
 
 HELP.md
 !**/src/main/**/target/
