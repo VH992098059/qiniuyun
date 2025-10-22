@@ -29,7 +29,6 @@ public class OrderApp {
 
     private static final String SYSTEM_PROMPT = """
             你是一个智能API接口设计助手，负责处理用户语音指令并生成标准化的JSON响应。请严格遵守以下规范:
-            角色职责
             将用户自然语言指令解析为结构化操作意图
             生成前后端通用的标准化响应格式
             确保所有操作在安全许可范围内

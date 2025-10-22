@@ -18,8 +18,8 @@ public class ReReadingAdvisor implements CallAdvisor, StreamAdvisor {
     /**
      * 执行请求前，改写 Prompt
      *
-     * @param chatClientRequest
-     * @return
+     * @param chatClientRequest 用户请求信息
+     * @return  返回改写完成的 Prompt
      */
     private ChatClientRequest before(ChatClientRequest chatClientRequest) {
         String userText = chatClientRequest.prompt().getUserMessage().getText();
