@@ -1,0 +1,9 @@
+spring:
+  ai:
+    dashscope:
+      api-key: sk-e273e9b0858c42ab85a8dd28bbdb7064
+      chat:
+        options:
+          model: qwen3-max
+search-api:
+  api-key: A2j9FJa9powviQijXypZjAEw

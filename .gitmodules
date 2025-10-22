@@ -1,6 +1,0 @@
-[submodule "backend/java/qiniuyun/backend/java"]
-	path = backend/java/qiniuyun/backend/java
-	url = https://github.com/CSJZSN/qiniuyunJava.git
-[submodule "backend/java/qiniuyunJava"]
-	path = backend/java/qiniuyunJava
-	url = https://github.com/CSJZSN/qiniuyunJava.git
