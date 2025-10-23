@@ -7,8 +7,10 @@ import (
 	"log"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/go-vgo/robotgo"
+	"github.com/vcaesar/imgo"
 )
 
 func RobotAutoApplication(ctx context.Context, text string) {
@@ -36,18 +38,20 @@ func RobotAutoApplication(ctx context.Context, text string) {
 	log.Println("\n[TASK 1] Launching an application (" + appName + ")...")
 	LaunchApplication(launch.Data, appName)
 	log.Println("\nWaiting for the app to open")
-	/*for {
-		appName = appName + ".exe"
-		if isAppActive(appName) {
+	appNameAction := appName + ".exe"
+	for {
+		if isAppActive(appNameAction) {
 			capture := robotgo.CaptureScreen()
 			defer robotgo.FreeBitmap(capture)
 			img := robotgo.ToImage(capture)
 			imgo.Save("screenshot.png", img)
+			log.Println("等待中")
+			robotgo.Sleep(3)
+			log.Println("截图成功")
 			break
-		} else {
-			continue
 		}
-	}*/
+		time.Sleep(800 * time.Millisecond)
+	}
 
 	/*// --- 等待几秒钟，给应用启动的时间，也让你能切换到音乐播放器 ---
 	log.Println("\nWaiting for 8 seconds to allow the app to open and start playing...")
@@ -74,6 +78,6 @@ func RobotAutoApplication(ctx context.Context, text string) {
 func isAppActive(targetProcess string) bool {
 	pid := robotgo.GetPid()
 	pname, _ := robotgo.FindName(pid)
-	fmt.Println(pname)
+	fmt.Println("应用名称：", pname)
 	return strings.EqualFold(pname, targetProcess)
 }
