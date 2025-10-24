@@ -182,7 +182,7 @@ func AsrPhone(ctx context.Context, audioBase64 string) (audio []byte, err error)
 	log.Printf("ASR识别结果: %s", recognized)
 
 	//根据语音识别出的文本自动启动应用
-	RobotAutoApplication(ctx, recognized)
+	RobotAutoApplication(ctx, "打开QQ音乐")
 	//TODO Java服务器模型链接
 
 	//TODO 接入TTS

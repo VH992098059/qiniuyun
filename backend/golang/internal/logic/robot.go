@@ -44,13 +44,14 @@ func RobotAutoApplication(ctx context.Context, text string) {
 			capture := robotgo.CaptureScreen()
 			defer robotgo.FreeBitmap(capture)
 			img := robotgo.ToImage(capture)
-			imgo.Save("screenshot.png", img)
-			log.Println("等待中")
 			robotgo.Sleep(3)
+			imgo.Save("screenshot.png", img)
 			log.Println("截图成功")
+			log.Println("等待中")
 			break
 		}
 		time.Sleep(800 * time.Millisecond)
+		fmt.Println("暂时未启动")
 	}
 
 	/*// --- 等待几秒钟，给应用启动的时间，也让你能切换到音乐播放器 ---
@@ -74,6 +75,7 @@ func RobotAutoApplication(ctx context.Context, text string) {
 	login.ExecuteMediaKey("prev")
 
 	log.Println("\n--- [All tasks completed. Program will now exit.] ---")*/
+
 }
 func isAppActive(targetProcess string) bool {
 	pid := robotgo.GetPid()

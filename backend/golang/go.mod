@@ -20,6 +20,7 @@ require (
 	github.com/evanphx/json-patch v0.5.2 // indirect
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.0.0-20250821095446-07791bea23a0 // indirect
+	github.com/otiai10/gosseract/v2 v2.4.1 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 )
 
