@@ -5,9 +5,11 @@ spring:
       chat:
         options:
           model: qwen3-max
-embedding:
-  options:
-    model: qwen3-vl-flash
+siliconflow:
+  api-key: sk-xsozofrlbofcvbxabfpqcybqnhjmlzuztbxotnqyzurdzgaz
+  base-url: https://api.siliconflow.cn/v1
+  model: Qwen/Qwen3-VL-235B-A22B-Instruct
+
 
 search-api:
   api-key: A2j9FJa9powviQijXypZjAEw
