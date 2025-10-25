@@ -1,4 +1,4 @@
-package logic
+package common
 
 import (
 	"bytes"
@@ -6,12 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
-func OcrLogic(ctx context.Context, filePath string) {
+func OcrLogic(ctx context.Context, filePath string) string {
+	log.Println("正在解析中，请稍后")
 	file, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -65,12 +68,13 @@ func OcrLogic(ctx context.Context, filePath string) {
 			}
 			fmt.Println("OCR Response 已保存到 ocr_result.json（原始文本回退）")
 			fmt.Println(string(trimmed))
-			return
+			return ""
 		}
 	}
+	abs, _ := filepath.Abs("files/json/ocr_result.json")
 
 	// 以 UTF-8 且不转义中文写入文件（避免 \uXXXX）
-	out, err := os.Create("ocr_result.json")
+	out, err := os.Create(abs)
 	if err != nil {
 		panic(err)
 	}
@@ -93,4 +97,5 @@ func OcrLogic(ctx context.Context, filePath string) {
 	}*/
 
 	fmt.Println("OCR Response 已保存到 ocr_result.json（已解除 \\uXXXX 中文转义）")
+	return "files/json/ocr_result.json"
 }

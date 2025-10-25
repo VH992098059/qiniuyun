@@ -1,9 +1,8 @@
-package logic
+package common
 
 import (
 	"context"
 	"fmt"
-	common "golang/utility"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -30,8 +29,8 @@ func ImgLogic(ctx context.Context, filePath string) (ob image.Rectangle, lb imag
 	formatLower := strings.ToLower(format)
 
 	// 分别裁剪左右半幅
-	left := common.CropLeftHalf(img)
-	right := common.CropRightHalf(img)
+	left := CropLeftHalf(img)
+	right := CropRightHalf(img)
 
 	// 输出文件名（尽量保持与输入格式一致；未知格式回退为 JPG）
 	ext := strings.ToLower(filepath.Ext(filePath))
