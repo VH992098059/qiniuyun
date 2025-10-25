@@ -50,10 +50,11 @@ func RobotAutoApplication(ctx context.Context, text string) {
 		absPhotoSave, _ := filepath.Abs("files/photos/screenshot.png")
 		for {
 			if isAppActive(appNameAction) {
+				time.Sleep(900 * time.Millisecond)
 				capture := robotgo.CaptureScreen()
 				defer robotgo.FreeBitmap(capture)
 				img := robotgo.ToImage(capture)
-				time.Sleep(500 * time.Millisecond)
+
 				log.Println("等待中")
 				imgo.Save(absPhotoSave, img)
 				log.Println("截图成功")
@@ -62,6 +63,7 @@ func RobotAutoApplication(ctx context.Context, text string) {
 			time.Sleep(800 * time.Millisecond)
 			fmt.Println("暂时未启动")
 		}
+		//如果需要操作
 		if launch.SafetyCheck.Intention == "action" {
 			log.Println("等待中")
 			time.Sleep(500 * time.Millisecond)
@@ -71,8 +73,8 @@ func RobotAutoApplication(ctx context.Context, text string) {
 			jsonResultPath := common.NewJsonFile(jsonPath)
 			abs, _ := filepath.Abs("files/output/new_orc.png")
 			//坐标嵌入当前截图
-			common.SynthesisPhoto(jsonResultPath, abs)
-			open, err := os.Open(abs)
+			resultJsonPic := common.SynthesisPhoto(jsonResultPath, abs)
+			open, err := os.Open(resultJsonPic)
 			if err != nil {
 				log.Println("文件打开失败", err)
 				return
@@ -94,10 +96,29 @@ func RobotAutoApplication(ctx context.Context, text string) {
 
 }
 func isAppActive(targetProcess string) bool {
-	pid := robotgo.GetPid()
-	pname, _ := robotgo.FindName(pid)
-	fmt.Println("应用名称：", pname)
-	return strings.EqualFold(pname, targetProcess)
+	// 获取当前所有进程 ID
+	pids, _ := robotgo.Pids()
+	for _, pid := range pids {
+		pname, err := robotgo.FindName(pid)
+		if err != nil {
+			continue
+		}
+		if strings.EqualFold(pname, targetProcess) {
+			fmt.Println("找到目标应用：", pname, "PID:", pid)
+			time.Sleep(800 * time.Millisecond)
+			// 激活窗口（置顶）
+			success := robotgo.ActivePid(pid)
+			if success == nil {
+				fmt.Println("已将应用置于最前面")
+			} else {
+				fmt.Println("激活失败")
+			}
+			return true
+		}
+	}
+	fmt.Println("未找到目标应用：", targetProcess)
+	return false
+
 }
 func controlApplication(action ActionModelInTaskData) {
 
