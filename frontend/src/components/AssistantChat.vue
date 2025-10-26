@@ -53,6 +53,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { transcribeBlob, pickText } from '../services/asr'
 import { voiceService } from '../services/voice'
+import { sendClientText } from '../services/client'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -97,11 +98,24 @@ async function sendText(text: string) {
   if (!t) return
   pushMessage('user', t)
   inputText.value = ''
-
-  // 模拟后端响应，或在此处调用真实接口
+// 模拟后端响应，或在此处调用真实接口
   const reply = `收到：${t}`
   pushMessage('assistant', reply)
   await speak(reply)
+ // 发送后立刻最小化窗口
+  try { (window as any).electronAPI?.minimize?.() } catch {}
+
+  try {
+    const reply = await sendClientText(t)
+    const display = reply
+    pushMessage('assistant', display)
+    await speak(display)
+    // 朗读结束后还原窗口
+    try { (window as any).electronAPI?.restore?.() } catch {}
+  } catch (e: any) {
+    console.error(e)
+    ElMessage.error(e?.message || '发送失败')
+  }
 }
 
 async function speak(text: string) {
@@ -145,6 +159,8 @@ async function startRecording() {
       if (e.data.size > 0) audioChunks.push(e.data)
     }
     rec.onstop = async () => {
+      // 语音结束后立即最小化窗口
+      try { (window as any).electronAPI?.minimize?.() } catch {}
       const blob = new Blob(audioChunks, { type: 'audio/webm' })
       isTranscribing.value = true
       try {
@@ -189,7 +205,10 @@ onMounted(() => {
     onStateChange: () => {},
     onLoadStart: () => {},
     onCanPlay: () => {},
-    onEnded: () => {},
+    onEnded: () => {
+      // 语音朗读结束时尝试还原窗口
+      try { (window as any).electronAPI?.restore?.() } catch {}
+    },
     onError: () => {},
     onAbort: () => {},
   })

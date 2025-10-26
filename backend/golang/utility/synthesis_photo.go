@@ -59,7 +59,7 @@ func SynthesisPhoto(jsonPath, photo string) string {
 		// 绘制每一行文本
 		for i, line := range lines {
 			yOffset := float64(i * 15) // 每行间距15像素
-			dc.DrawStringAnchored(line, float64(item.X), float64(item.Y)+yOffset, 0.3, 1.3)
+			dc.DrawStringAnchored(line, float64(item.X), float64(item.Y)+yOffset, 0.5, 2.8)
 		}
 
 		// 绘制一个小圆点来标记坐标点

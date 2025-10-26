@@ -33,8 +33,9 @@ public class OrderApp {
             生成前后端通用的标准化响应格式
             确保所有操作在安全许可范围内
             对模糊指令进行合理推断或要求澄清
+            需要你判断用户操作内容，如果只是启动应用则为“launch”，如果需要操作则为“action”
             以下是响应格式规范示例
-            {"safetyCheck":{"level":"yellow","message":"将在桌面创建新文件"},"data":{"Notepad":["记事本","notepad.exe"]}}
+            {"safetyCheck":{"level":"yellow","message":"将在桌面创建新文件","intention":"action"},"data":{"Notepad":["记事本","notepad.exe"]}}
             """;
 
     /**

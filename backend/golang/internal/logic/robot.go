@@ -107,7 +107,7 @@ func isAppActive(targetProcess string) bool {
 		}
 		if strings.EqualFold(pname, targetProcess) {
 			fmt.Println("找到目标应用：", pname, "PID:", pid)
-			time.Sleep(800 * time.Millisecond)
+			time.Sleep(2 * time.Second)
 			// 激活窗口（置顶）
 			success := robotgo.ActivePid(pid)
 			if success == nil {
@@ -115,6 +115,7 @@ func isAppActive(targetProcess string) bool {
 			} else {
 				fmt.Println("激活失败")
 			}
+			time.Sleep(1 * time.Second)
 			return true
 		}
 	}
