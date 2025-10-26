@@ -77,7 +77,7 @@ func FindExecutablePathInRegistry(appDisplayName, exeName string) (string, error
 }
 
 // LaunchApplication 启动应用程序
-func LaunchApplication(app map[string][]string, appName string) error {
+func LaunchApplication(app map[string][]string, appName string) (name string, err error) {
 	log.Printf("INFO: Attempting to launch application: %s", appName)
 	var cmd *exec.Cmd
 
@@ -107,9 +107,10 @@ func LaunchApplication(app map[string][]string, appName string) error {
 			}
 			cmd = exec.Command(fullPath)
 			log.Println(cmd)
+			name = appInfo[1]
 		} else {
 			log.Printf("WARN: Unsupported app on Windows: %s", appName)
-			return nil
+			return "", nil
 		}
 
 	/*case "darwin": // macOS
@@ -140,17 +141,17 @@ func LaunchApplication(app map[string][]string, appName string) error {
 
 	default:
 		log.Printf("ERROR: Unsupported operating system: %s", runtime.GOOS)
-		return nil
+		return "", nil
 	}
 
-	err := cmd.Start()
+	err = cmd.Start()
 	if err != nil {
 		log.Printf("ERROR: Failed to launch %s: %v", appName, err)
-		return err
+		return "", nil
 	}
 
 	log.Printf("SUCCESS: Launch command for '%s' sent.", appName)
-	return nil
+	return
 }
 
 // ExecuteMediaKey 模拟媒体按键

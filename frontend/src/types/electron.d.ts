@@ -4,6 +4,8 @@ declare global {
   interface Window {
     electronAPI?: {
       executeCommand: (text: string) => Promise<{ ok: boolean; reply: string }>
+      minimize: () => Promise<boolean>
+      restore: () => Promise<boolean>
     }
   }
 }

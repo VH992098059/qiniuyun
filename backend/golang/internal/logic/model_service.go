@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"net/http"
 	"net/textproto"
 	"strings"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -47,10 +49,10 @@ type ActionModelReq struct {
 
 // 意图操作外层响应
 type actionModelOuterRes struct {
-	Code      int    `json:"code"`
-	Message   string `json:"message"`
-	Data      string `json:"data"` // 注意：这是嵌套的 JSON 字符串
-	Timestamp int64  `json:"timestamp"`
+	Code      int             `json:"code"`
+	Message   string          `json:"message"`
+	Data      json.RawMessage `json:"data"`
+	Timestamp int64           `json:"timestamp"`
 }
 
 // ActionModelInTaskData 意图操作内部响应
@@ -62,17 +64,10 @@ type ActionModelInTaskData struct {
 	Actions      []taskDataActions `json:"actions"`
 }
 type taskDataActions struct {
-	ActionName string         `json:"action_name"`
-	Parameters ActionParamMap `json:"parameters"`
+	ActionName string        `json:"action_name"`
+	Parameters ParametersMap `json:"parameters"`
 }
-type ActionParamMap struct {
-	X           string `json:"x"`
-	Y           string `json:"y"`
-	Comment     string `json:"comment"`
-	DoubleClick string `json:"double_click"`
-	Button      string `json:"button"`
-	Keyword     string `json:"keyword"`
-}
+type ParametersMap map[string]any
 
 func ModelService(ctx context.Context, text string) (result *DataAnalysis, err error) {
 	modelURL := "http://localhost:8081/api/ai/chat/do"
@@ -97,6 +92,7 @@ func ModelService(ctx context.Context, text string) (result *DataAnalysis, err e
 	if err != nil {
 		return nil, err
 	}
+
 	// 第一步：解析外层结构
 	var outer modelChatRes
 	if err = json.Unmarshal(raw, &outer); err != nil {
@@ -166,24 +162,35 @@ func ActionModel(ctx context.Context, actionReq *ActionModelReq) (result *Action
 		return nil, fmt.Errorf("关闭 writer 失败: %v", err)
 	}
 
+	// 独立超时上下文，避免上游请求结束导致被取消
+	reqCtx, cancel := context.WithTimeout(context.Background(), 200*time.Second)
+	defer cancel()
+
 	// 发送 HTTP 请求
-	req, err := http.NewRequestWithContext(ctx, "POST", modelURL, &buf)
+	req, err := http.NewRequestWithContext(reqCtx, "POST", modelURL, &buf)
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("Accept", "application/json")
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 200 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			return nil, fmt.Errorf("发送请求失败: 上游 context 已取消或生命周期已结束: %w", err)
+		}
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, fmt.Errorf("发送请求失败: 请求超时: %w", err)
+		}
 		return nil, fmt.Errorf("发送请求失败: %v", err)
 	}
 	defer resp.Body.Close()
 
-	// 校验响应类型
-	if ct := resp.Header.Get("Content-Type"); !strings.HasPrefix(ct, "application/json") {
-		return nil, fmt.Errorf("响应 Content-Type 非 application/json: %s", ct)
+	// 校验响应类型（仅告警，不拦截）
+	ct := resp.Header.Get("Content-Type")
+	if !strings.HasPrefix(ct, "application/json") {
+		log.Printf("警告: 响应 Content-Type 非 application/json: %s", ct)
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("请求失败，状态码: %d", resp.StatusCode)
@@ -194,16 +201,58 @@ func ActionModel(ctx context.Context, actionReq *ActionModelReq) (result *Action
 		return nil, fmt.Errorf("读取响应失败: %v", err)
 	}
 
-	// 解析外层
+	// 解析外层（兼容 data 为字符串或对象）
 	var outer actionModelOuterRes
-	if err = json.Unmarshal(raw, &outer); err != nil {
-		fmt.Println("解析外层失败:", err)
-		return nil, fmt.Errorf("解析外层响应失败: %v", err)
-	}
-	// 解析内层
-	if err = json.Unmarshal([]byte(outer.Data), &result); err != nil {
-		fmt.Println("解析内层失败:", err)
+	if err = json.Unmarshal(raw, &outer); err == nil && len(outer.Data) > 0 {
+		// 先尝试将 data 解析为字符串（服务端可能返回字符串包裹的 JSON）
+		var dataStr string
+		if err2 := json.Unmarshal(outer.Data, &dataStr); err2 == nil {
+			extractJSON, err := CleanAndExtractJSON(dataStr)
+			if err != nil {
+				return nil, err
+			}
+			if err = json.Unmarshal([]byte(extractJSON), &result); err != nil {
+				return nil, fmt.Errorf("解析内层数据失败: %v", err)
+			}
+			return result, nil
+		}
+		// 若不是字符串，则直接按对象解析
+		if err2 := json.Unmarshal(outer.Data, &result); err2 == nil {
+			return result, nil
+		}
+		// 解析失败则返回错误
 		return nil, fmt.Errorf("解析内层数据失败: %v", err)
 	}
+
+	// 降级：直接解析为内部结构（用于服务端直接返回内部对象的情况）
+	if err = json.Unmarshal(raw, &result); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %v", err)
+	}
 	return result, nil
+}
+
+// CleanAndExtractJSON 从可能被Markdown包裹的字符串中提取出纯JSON部分
+func CleanAndExtractJSON(rawResponse string) (string, error) {
+	// 找到第一个 '{' 的位置
+	startIndex := strings.Index(rawResponse, "{")
+	if startIndex == -1 {
+		return "", errors.New("响应中未找到JSON起始括号 '{'")
+	}
+
+	// 找到最后一个 '}' 的位置
+	endIndex := strings.LastIndex(rawResponse, "}")
+	if endIndex == -1 || endIndex < startIndex {
+		return "", errors.New("响应中未找到JSON结束括号 '}' 或括号顺序错误")
+	}
+
+	// 提取从第一个 '{' 到最后一个 '}' 的子字符串
+	jsonStr := rawResponse[startIndex : endIndex+1]
+
+	// 验证一下它是否是有效的JSON（可选但推荐）
+	var js map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &js); err != nil {
+		return "", errors.New("提取的字符串不是有效的JSON")
+	}
+
+	return jsonStr, nil
 }

@@ -1,13 +1,17 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 
+let mainWindow = null
+let previousBounds = null
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1280,
     height: 840,
     minWidth: 960,
     minHeight: 600,
-    autoHideMenuBar: true, // 隐藏菜单栏（按 Alt 可显示，下面再彻底移除）
+    autoHideMenuBar: true,
+    alwaysOnTop: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -15,15 +19,25 @@ function createWindow() {
     },
   })
 
-  // 彻底移除应用菜单并隐藏窗口菜单栏
+  // 移除应用菜单并隐藏菜单栏
   Menu.setApplicationMenu(null)
-  win.setMenuBarVisibility(false)
+  mainWindow.setMenuBarVisibility(false)
+  mainWindow.setAlwaysOnTop(false, 'normal')
+
+  // 记录初始窗口位置与尺寸
+  previousBounds = mainWindow.getBounds()
+  mainWindow.on('move', () => {
+    try { previousBounds = mainWindow.getBounds() } catch {}
+  })
+  mainWindow.on('resize', () => {
+    try { previousBounds = mainWindow.getBounds() } catch {}
+  })
 
   const devUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173'
   if (!app.isPackaged) {
-    win.loadURL(devUrl)
+    mainWindow.loadURL(devUrl)
   } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'))
+    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
   }
 }
 
@@ -37,6 +51,32 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+
+// 渲染层请求：最小化窗口并记录当前位置
+ipcMain.handle('window:minimize', () => {
+  if (!mainWindow) return false
+  try {
+    previousBounds = mainWindow.getBounds()
+    mainWindow.minimize()
+    return true
+  } catch {
+    return false
+  }
+})
+
+// 渲染层请求：还原窗口到之前的位置与大小
+ipcMain.handle('window:restore', () => {
+  if (!mainWindow) return false
+  try {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    if (previousBounds) mainWindow.setBounds(previousBounds, true)
+    mainWindow.show()
+    mainWindow.focus()
+    return true
+  } catch {
+    return false
+  }
 })
 
 // 简单的能力路由模拟：根据文本指令返回回应
