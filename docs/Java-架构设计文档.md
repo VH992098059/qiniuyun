@@ -1,8 +1,8 @@
-# VoiceMind Java Core 架构设计文档
+# 语音控制桌面助手 Java Core 架构设计文档
 
 ## 项目概述
 
-VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后端系统，提供多种AI聊天模式、工具集成、RAG检索增强生成等功能。系统采用模块化设计，支持多种AI模型和工具调用能力。
+语音控制桌面助手 Java Core 是一个基于Spring AI框架构建的智能语音助手后端系统，提供多种AI聊天模式、工具集成、RAG检索增强生成等功能。系统采用模块化设计，支持多种AI模型和工具调用能力。
 
 ## 技术栈
 
@@ -23,7 +23,7 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
 │                    客户端层 (Client Layer)                    │
 ├─────────────────────────────────────────────────────────────┤
 │  Web前端  │  移动端  │  第三方系统  │  命令行工具  │  其他客户端  │
-└─────────────────────────────────────────────────────────────┘         
+└─────────────────────────────────────────────────────────────┘       
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────┐
@@ -73,6 +73,7 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
 ### 1. 控制器层 (Controller Layer)
 
 #### 1.1 AiController
+
 - **职责**: 提供AI聊天相关的REST API接口
 - **主要功能**:
   - 基础AI聊天 (`/ai/chat/do`)
@@ -83,16 +84,19 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
   - SSE流式聊天 (`/ai/chat/sse`)
 
 #### 1.2 HealthController
+
 - **职责**: 提供系统健康检查接口
 - **功能**: 监控系统运行状态
 
 #### 1.3 MultiController
+
 - **职责**: 提供多模态处理接口
 - **功能**: 处理图像、文本等多种输入类型
 
 ### 2. 应用服务层 (Application Layer)
 
 #### 2.1 OrderApp
+
 - **职责**: 核心AI聊天应用服务
 - **核心功能**:
   - 多轮对话记忆管理
@@ -101,17 +105,20 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
   - 结构化输出生成
 
 #### 2.2 ImageApp
+
 - **职责**: 图像处理应用服务
 - **功能**: 图像识别、处理、分析
 
 ### 3. AI服务层 (AI Service Layer)
 
 #### 3.1 模型支持
+
 - **通义千问 (DashScope)**: 主要AI模型
 - **Gemini**: 备用AI模型
 - **模型配置**: 通过配置文件管理API密钥和模型参数
 
 #### 3.2 ChatClient
+
 - **功能**: 统一的AI聊天客户端
 - **特性**:
   - 支持多种Advisor模式
@@ -122,49 +129,58 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
 ### 4. 工具集成层 (Tool Integration Layer)
 
 #### 4.1 文件操作工具
+
 - **FileOperationTool**: 文件创建、读取、写入、删除
 - **PDFGenerationTool**: PDF文档生成
 - **ResourceDownloadTool**: 资源下载
 
 #### 4.2 网络工具
+
 - **WebSearchTool**: 网络搜索
 - **WebScrapingTool**: 网页内容抓取
 
 #### 4.3 系统工具
+
 - **TerminalOperationTool**: 终端命令执行
 - **TerminateTool**: 进程终止
 
 ### 5. RAG知识库层 (RAG Layer)
 
 #### 5.1 向量存储
+
 - **OrderAppVectorStoreConfig**: 向量存储配置
 - **支持**: 内存向量存储、PgVector等
 
 #### 5.2 文档处理
+
 - **OrderAppDocumentLoader**: 文档加载器
 - **MyTokenTextSplitter**: 文本分割器
 - **MyKeywordEnricher**: 关键词增强器
 
 #### 5.3 查询处理
+
 - **QueryRewriter**: 查询重写器
 - **QuestionAnswerAdvisor**: 问答增强器
 
 ### 6. 基础设施层 (Infrastructure Layer)
 
 #### 6.1 异常处理
+
 - **GlobalExceptionHandler**: 全局异常处理器
-- **自定义异常类**: 
+- **自定义异常类**:
   - `ActionExecutionException`
   - `CustRuntimeException`
   - `InvalidRequestException`
   - `LLMServiceException`
 
 #### 6.2 配置管理
+
 - **CrossConfig**: 跨域配置
 - **Knife4jConfig**: API文档配置
 - **FileConstant**: 文件常量定义
 
 #### 6.3 日志和监控
+
 - **MyLoggerAdvisor**: 自定义日志增强器
 - **ReReadingAdvisor**: 推理增强器
 
@@ -191,16 +207,19 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
 ## 安全设计
 
 ### 1. API安全
+
 - CORS跨域配置
 - 请求参数验证
 - 异常统一处理
 
 ### 2. 工具调用安全
+
 - 工具权限控制
 - 操作范围限制
 - 安全检查机制
 
 ### 3. 数据安全
+
 - 敏感信息配置化
 - 会话数据隔离
 - 日志脱敏处理
@@ -208,16 +227,19 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
 ## 性能优化
 
 ### 1. 响应优化
+
 - 流式响应支持
 - 异步处理
 - 缓存机制
 
 ### 2. 内存优化
+
 - 会话记忆窗口限制
 - 向量存储优化
 - 垃圾回收调优
 
 ### 3. 并发优化
+
 - 线程池配置
 - 连接池管理
 - 负载均衡
@@ -225,28 +247,31 @@ VoiceMind Java Core 是一个基于Spring AI框架构建的智能语音助手后
 ## 扩展性设计
 
 ### 1. 模块化设计
+
 - 松耦合架构
 - 接口抽象
 - 插件化支持
 
 ### 2. 配置化支持
+
 - 多环境配置
 - 动态配置更新
 - 功能开关
 
 ### 3. 监控和运维
+
 - 健康检查
 - 指标监控
 - 日志分析
 
 ## 部署架构
 
-###  单机部署
+### 单机部署
+
 - Spring Boot内嵌Tomcat
 - 内存存储
 - 本地文件系统
 
 ## 总结
 
-VoiceMind Java Core 采用分层架构设计，通过模块化、配置化的方式实现了高度可扩展的AI助手系统。系统支持多种AI模型、工具集成、RAG增强等功能，为上层应用提供了强大的AI能力支持。架构设计充分考虑了性能、可维护性等因素，为系统的长期发展奠定了坚实基础。
-
+语音控制桌面助手 Java Core 采用分层架构设计，通过模块化、配置化的方式实现了高度可扩展的AI助手系统。系统支持多种AI模型、工具集成、RAG增强等功能，为上层应用提供了强大的AI能力支持。架构设计充分考虑了性能、可维护性等因素，为系统的长期发展奠定了坚实基础。

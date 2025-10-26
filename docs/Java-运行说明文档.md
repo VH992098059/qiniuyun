@@ -1,18 +1,20 @@
-# VoiceMind Java Core 运行说明文档
+# 语音控制桌面助手 Java Core 运行说明文档
 
 ## 项目简介
 
-VoiceMind Java Core 是一个基于Spring AI框架的智能语音助手后端系统，提供多种AI聊天模式、工具集成、RAG检索增强生成等功能。
+语音控制桌面助手 Java Core 是一个基于Spring AI框架的智能语音助手后端系统，提供多种AI聊天模式、工具集成、RAG检索增强生成等功能。
 
 ## 环境要求
 
 ### 系统要求
+
 - **操作系统**: Windows 10/11, macOS, Linux
 - **Java版本**: Java 21 或更高版本
 - **内存**: 建议 4GB 以上
 - **磁盘空间**: 至少 1GB 可用空间
 
 ### 开发环境
+
 - **IDE**: IntelliJ IDEA, VS Code
 - **构建工具**: Maven 3.6+
 - **版本控制**: Git
@@ -48,15 +50,16 @@ search-api:
 #### 2.2 获取API密钥
 
 1. **通义千问API密钥**:
+
    - 访问 [阿里云DashScope控制台](https://dashscope.console.aliyun.com/)
    - 注册/登录账号
    - 创建API密钥
-
 2. **Gemini API密钥**:
+
    - 访问 [Google AI Studio](https://aistudio.google.com/)
    - 获取API密钥
-
 3. **搜索API密钥**:
+
    - 根据使用的搜索服务提供商获取相应密钥
 
 ### 3. 编译项目
@@ -104,6 +107,7 @@ java -jar target/VoiceMind-Java-core-0.0.1-SNAPSHOT.jar
 #### 5.1 检查服务状态
 
 访问健康检查接口：
+
 ```
 GET http://localhost:8081/api/health
 ```
@@ -111,6 +115,7 @@ GET http://localhost:8081/api/health
 #### 5.2 查看API文档
 
 访问Swagger UI文档：
+
 ```
 http://localhost:8081/api/swagger-ui.html
 ```
@@ -245,6 +250,7 @@ curl -X GET "http://localhost:8081/api/ai/chat/sse?message=你好&chatId=chat_00
 
 **问题**: 应用启动失败，提示端口被占用
 **解决方案**:
+
 ```bash
 # 检查端口占用
 netstat -ano | findstr :8081  # Windows
@@ -256,6 +262,7 @@ lsof -i :8081                 # Linux/macOS
 
 **问题**: API密钥配置错误
 **解决方案**:
+
 - 检查 `application-local.yml` 中的API密钥配置
 - 确认API密钥有效且有足够额度
 - 检查网络连接
@@ -264,6 +271,7 @@ lsof -i :8081                 # Linux/macOS
 
 **问题**: Maven依赖下载失败
 **解决方案**:
+
 ```bash
 # 清理Maven缓存
 mvn dependency:purge-local-repository
@@ -278,6 +286,7 @@ mvn clean install
 
 **问题**: 运行时出现OutOfMemoryError
 **解决方案**:
+
 ```bash
 # 增加JVM内存
 java -Xms512m -Xmx2048m -jar target/VoiceMind-Java-core-0.0.1-SNAPSHOT.jar
@@ -287,6 +296,7 @@ java -Xms512m -Xmx2048m -jar target/VoiceMind-Java-core-0.0.1-SNAPSHOT.jar
 
 **问题**: AI工具调用失败
 **解决方案**:
+
 - 检查工具权限配置
 - 确认系统环境支持（如终端操作需要相应权限）
 - 查看日志文件获取详细错误信息
@@ -341,16 +351,19 @@ spring:
 ## 部署建议
 
 ### 1. 开发环境
+
 - 使用IDE直接运行
 - 开启热重载功能
 - 使用内存存储
 
 ### 2. 测试环境
+
 - 使用Docker容器部署
 - 配置外部数据库
 - 启用详细日志
 
 ### 3. 生产环境
+
 - 使用Docker或Kubernetes部署
 - 配置负载均衡
 - 使用外部存储
@@ -361,12 +374,14 @@ spring:
 ### 1. 健康检查
 
 定期检查以下端点：
+
 - `/api/health` - 应用健康状态
 - `/api/swagger-ui.html` - API文档
 
 ### 2. 日志监控
 
 关注以下日志：
+
 - 错误日志
 - 性能日志
 - 安全日志
@@ -374,6 +389,7 @@ spring:
 ### 3. 资源监控
 
 监控以下指标：
+
 - CPU使用率
 - 内存使用率
 - 磁盘空间
@@ -382,6 +398,7 @@ spring:
 ## 联系支持
 
 如遇到问题，请：
+
 1. 查看本文档的常见问题部分
 2. 检查项目日志文件
 3. 提交Issue到项目仓库
@@ -390,4 +407,3 @@ spring:
 ---
 
 **注意**: 请确保在生产环境中妥善保管API密钥，不要将包含敏感信息的配置文件提交到版本控制系统。
-
